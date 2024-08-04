@@ -10,8 +10,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import axios from "axios";
+import React, { createContext, useState, useContext, useEffect } from 'react';import axios from "axios";
 import Empty from "@/components/empty";
 import Loader from "@/components/loader";
 import UserAvatar from "@/components/user-avatar";
@@ -24,9 +23,15 @@ import { faCopy } from '@fortawesome/free-solid-svg-icons';
 
 type Language = 'en' | 'ar' | 'fr';
 
+interface TranslationStrings {
+  title: string;
+  description: string;
+  placeholder: string;
+  noCodeGeneration: string;
+  generate: string;
+}
 
-
-const translations = {
+const translations: Record<Language, TranslationStrings> = {
   en: {
     title: "Conversation",
     description: "Engage in a meaningful conversation.",
@@ -50,7 +55,17 @@ const translations = {
   }
 };
 
+const TranslationContext = createContext({
+  translate: (key: keyof TranslationStrings) => key,
+  setLanguage: (lang: Language) => {},
+});
+
+
+
+
 const CodePage = () => {
+  const useTranslation = () => useContext(TranslationContext);
+const { translate } = useTranslation();
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const router = useRouter();
   const { language } = useLanguage();
@@ -114,12 +129,12 @@ const CodePage = () => {
   return (
     <div>
       <HeadingPage
-        title={translations[language].title}
-        description={translations[language].description}
-        icon={MessageSquare}
-        iconColor="text-blue-500"
-        bgColor="bg-blue-500/10"
-      />
+      title={translate('title')}
+      description={translate('description')}
+      icon={MessageSquare}
+      iconColor="text-blue-500"
+      bgColor="bg-blue-500/10"
+    />
       <div className="px-4 lg:px-8">
         <div>
           <Form {...form}>
