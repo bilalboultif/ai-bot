@@ -85,7 +85,12 @@ const translations: Translations = {
 const CodePage = () => {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const router = useRouter();
-  const { language } = useLanguage(); // Use the language context
+  const { language } = useLanguage();
+
+  if (!['en', 'ar', 'fr'].includes(language)) {
+    throw new Error(`Unsupported language: ${language}`);
+  }
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -94,8 +99,6 @@ const CodePage = () => {
   });
 
   const isLoading = form.formState.isSubmitting;
-
-
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
