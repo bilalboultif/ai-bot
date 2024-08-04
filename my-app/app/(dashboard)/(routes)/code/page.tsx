@@ -85,12 +85,7 @@ const translations: Translations = {
 const CodePage = () => {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const router = useRouter();
-  const { language } = useLanguage();
-
-  if (!['en', 'ar', 'fr'].includes(language)) {
-    throw new Error(`Unsupported language: ${language}`);
-  }
-
+  const { language } = useLanguage() as { language: Language }; // Type assertion
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -113,9 +108,6 @@ const CodePage = () => {
         messages: newMessages,
       });
   
-      // Assuming the response from the API is JSON with a 'text' field
-      
-  
       setMessages((current) => [
         ...current,
         userMessage,
@@ -123,9 +115,7 @@ const CodePage = () => {
       ]);
       form.reset();
     } catch (error: any) {
-      // Handle API errors
       if (error.response && error.response.data) {
-        // Extract and show the error message from the API response
         const userMessage = {
           role: "user",
           content: values.prompt,
@@ -140,9 +130,7 @@ const CodePage = () => {
           { role: "bot", content: errorMessage }
         ]);
         form.reset();
-        // Or use another method to display the error message in the UI
       } else {
-        // Handle unexpected errors
         console.log('Unexpected Error:', error.message);
         alert('An unexpected error occurred.');
       }
@@ -154,8 +142,8 @@ const CodePage = () => {
   return (
     <div>
       <HeadingPage
-        title={translations[language].title}
-        description={translations[language].description}
+        title={translations[language as Language].title}
+        description={translations[language as Language].description}
         icon={Code}
         iconColor="text-green-700"
         bgColor="bg-green-700/10"
@@ -175,7 +163,7 @@ const CodePage = () => {
                       <Input
                         className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
                         disabled={isLoading}
-                        placeholder={translations[language].placeholder}
+                        placeholder={translations[language as Language].placeholder}
                         {...field}
                       />
                     </FormControl>
@@ -186,7 +174,7 @@ const CodePage = () => {
                 className="col-span-12 lg:col-span-2 w-full"
                 disabled={isLoading}
               >
-                {translations[language].generate}
+                {translations[language as Language].generate}
               </Button>
             </form>
           </Form>
@@ -199,7 +187,7 @@ const CodePage = () => {
           )}
           {messages.length === 0 && !isLoading && (
             <div>
-              <Empty label={translations[language].noCodeGeneration} />
+              <Empty label={translations[language as Language].noCodeGeneration} />
             </div>
           )}
           <div className="flex flex-col-reverse gap-y-4">
@@ -213,29 +201,27 @@ const CodePage = () => {
               >
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
                 
-                {
-               <ReactMarkdown
-               components={{
-                 pre: ({ node, ...props }) => (
-                   <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg relative">
-                     <pre {...props} />
-                   </div>
-                 ),
-                 code: ({ node, ...props }) => {
-                   const codeString = (props.children as string).toString();
-                   return (
-                     <div className="relative">
-                       <CopyButton text={codeString} />
-                       <code className="bg-black/10 rounded-lg p-1" {...props} />
-                     </div>
-                   );
-                 },
-               }}
-               className="text-sm overflow-hidden leading-7"
-             >
-               {message.content || ""}
-             </ReactMarkdown>
-            }
+                <ReactMarkdown
+                  components={{
+                    pre: ({ node, ...props }) => (
+                      <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg relative">
+                        <pre {...props} />
+                      </div>
+                    ),
+                    code: ({ node, ...props }) => {
+                      const codeString = (props.children as string).toString();
+                      return (
+                        <div className="relative">
+                          <CopyButton text={codeString} />
+                          <code className="bg-black/10 rounded-lg p-1" {...props} />
+                        </div>
+                      );
+                    },
+                  }}
+                  className="text-sm overflow-hidden leading-7"
+                >
+                  {message.content || ""}
+                </ReactMarkdown>
               </div>
             ))}
           </div>
@@ -246,3 +232,4 @@ const CodePage = () => {
 };
 
 export default CodePage;
+
