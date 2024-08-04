@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import HeadingPage from "@/components/Heading";
-import { Code } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { formSchema } from "./constants";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,47 +34,27 @@ type Translations = {
   };
 };
 
-interface CopyButtonProps {
-  text: string;
-}
-
-const CopyButton: React.FC<CopyButtonProps> = ({ text }) => {
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (err) {
-      console.error('Failed to copy: ', err);
-    }
-  };
-
-  return (
-    <button onClick={copyToClipboard} className="ml-2 p-1 text-blue-500 hover:text-blue-700">
-      <FontAwesomeIcon icon={faCopy} />
-    </button>
-  );
-};
-
 const translations: Translations = {
   en: {
-    title: "Code Generation",
-    description: "Generate code using descriptive text.",
-    placeholder: "Simple toggle button using React hooks.",
-    noCodeGeneration: "No Code Generation started",
-    generate: "Generate"
+    title: "Conversation",
+    description: "Engage in a meaningful conversation.",
+    placeholder: "Type your message here...",
+    noCodeGeneration: "No conversation started",
+    generate: "Start Conversation"
   },
   ar: {
-    title: "نظام البرمجة",
-    description: "إنشاء التعليمات البرمجية باستخدام النص الوصفي.",
-    placeholder: "زر تبديل بسيط باستخدام React.js.",
-    noCodeGeneration: "لم تبدأ أي نظام البرمجة",
-    generate: "لنبدأ"
+    title: "محادثة",
+    description: "الانخراط في محادثة ذات مغزى.",
+    placeholder: "اكتب رسالتك هنا...",
+    noCodeGeneration: "لم تبدأ أي محادثة",
+    generate: "ابدأ المحادثة"
   },
   fr: {
-    title: "Code Generation",
-    description: "Générer du code à l'aide d'un texte descriptif.",
-    placeholder: "Bouton bascule simple utilisant les hooks React.js.",
-    noCodeGeneration: "Aucune Code Generation commencée",
-    generate: "Générer"
+    title: "Conversation",
+    description: "Engagez-vous dans une conversation significative.",
+    placeholder: "Tapez votre message ici...",
+    noCodeGeneration: "Aucune conversation commencée",
+    generate: "Démarrer la conversation"
   }
 };
 
@@ -83,10 +63,8 @@ const CodePage = () => {
   const router = useRouter();
   const { language } = useLanguage();
 
-  // Type guard to ensure language is valid
-  const isValidLanguage = (lang: any): lang is Language => ['en', 'ar', 'fr'].includes(lang);
-
-  if (!isValidLanguage(language)) {
+  // Ensure 'language' is of type 'Language'
+  if (!['en', 'ar', 'fr'].includes(language)) {
     throw new Error(`Unsupported language: ${language}`);
   }
 
@@ -108,7 +86,7 @@ const CodePage = () => {
   
       const newMessages = [...messages, userMessage];
       
-      const response = await axios.post("/api/code", {
+      const response = await axios.post("/api/conversation", {
         messages: newMessages,
       });
   
@@ -146,9 +124,9 @@ const CodePage = () => {
       <HeadingPage
         title={translations[language].title}
         description={translations[language].description}
-        icon={Code}
-        iconColor="text-green-700"
-        bgColor="bg-green-700/10"
+        icon={MessageSquare}
+        iconColor="text-blue-500"
+        bgColor="bg-blue-500/10"
       />
       <div className="px-4 lg:px-8">
         <div>
