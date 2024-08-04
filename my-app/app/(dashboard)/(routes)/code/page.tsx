@@ -36,6 +36,17 @@ type Translations = {
   };
 };
 
+// Extend Translations to include any string key
+type ExtendedTranslations = {
+  [key: string]: {
+    title: string;
+    description: string;
+    placeholder: string;
+    noCodeGeneration: string;
+    generate: string;
+  };
+};
+
 interface CopyButtonProps {
   text: string;
 }
@@ -58,7 +69,7 @@ const CopyButton: React.FC<CopyButtonProps> = ({ text }) => {
 };
 
 
-const translations: Translations = {
+const translations: ExtendedTranslations = {
   en: {
     title: "Code Generation",
     description: "generate code using descriptive text .",
@@ -82,10 +93,19 @@ const translations: Translations = {
   }
 };
 
+const isValidLanguage = (lang: any): lang is Language => {
+  return ['en', 'ar', 'fr'].includes(lang);
+};
+
 const CodePage = () => {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const router = useRouter();
-  const { language } = useLanguage() as { language: Language }; // Type assertion
+  const { language } = useLanguage();
+
+  if (!isValidLanguage(language)) {
+    throw new Error(`Unsupported language: ${language}`);
+  }
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -141,9 +161,9 @@ const CodePage = () => {
 
   return (
     <div>
-      <HeadingPage
-        title={translations[language as Language].title}
-        description={translations[language as Language].description}
+       <HeadingPage
+        title={translations[language].title}
+        description={translations[language].description}
         icon={Code}
         iconColor="text-green-700"
         bgColor="bg-green-700/10"
