@@ -64,6 +64,26 @@ const TranslationContext = createContext({
 
 
 const CodePage = () => {
+  interface CopyButtonProps {
+    text: string;
+  }
+  
+  const CopyButton: React.FC<CopyButtonProps> = ({ text }) => {
+    const copyToClipboard = async () => {
+      try {
+        await navigator.clipboard.writeText(text);
+        
+      } catch (err) {
+        console.error('Failed to copy: ', err);
+      }
+    };
+  
+    return (
+      <button onClick={copyToClipboard} className="ml-2 p-1 text-blue-500 hover:text-blue-700">
+        <FontAwesomeIcon icon={faCopy} />
+      </button>
+    );
+  };
   const useTranslation = () => useContext(TranslationContext);
 const { translate } = useTranslation();
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
