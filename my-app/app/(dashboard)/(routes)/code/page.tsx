@@ -18,27 +18,14 @@ import UserAvatar from "@/components/user-avatar";
 import BotAvatar from "@/components/bot-avatar";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/contexts/LanguageContext";
-import ReactMarkdown from "react-markdown"
-
+import ReactMarkdown from "react-markdown";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 
-
-// Define the type for the translations object
 type Language = 'en' | 'ar' | 'fr';
+
 type Translations = {
   [key in Language]: {
-    title: string;
-    description: string;
-    placeholder: string;
-    noCodeGeneration: string;
-    generate: string;
-  };
-};
-
-// Extend Translations to include any string key
-type ExtendedTranslations = {
-  [key: string]: {
     title: string;
     description: string;
     placeholder: string;
@@ -55,7 +42,6 @@ const CopyButton: React.FC<CopyButtonProps> = ({ text }) => {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(text);
-      
     } catch (err) {
       console.error('Failed to copy: ', err);
     }
@@ -68,39 +54,37 @@ const CopyButton: React.FC<CopyButtonProps> = ({ text }) => {
   );
 };
 
-
-const translations: ExtendedTranslations = {
+const translations: Translations = {
   en: {
     title: "Code Generation",
-    description: "generate code using descriptive text .",
-    placeholder: "Simple toggle button using react hooks.",
+    description: "Generate code using descriptive text.",
+    placeholder: "Simple toggle button using React hooks.",
     noCodeGeneration: "No Code Generation started",
     generate: "Generate"
   },
   ar: {
     title: "نظام البرمجة",
     description: "إنشاء التعليمات البرمجية باستخدام النص الوصفي.",
-    placeholder: "react.js زر تبديل بسيط باستخدام ",
+    placeholder: "زر تبديل بسيط باستخدام React.js.",
     noCodeGeneration: "لم تبدأ أي نظام البرمجة",
     generate: "لنبدأ"
   },
   fr: {
     title: "Code Generation",
-    description: "générer du code à l'aide d'un texte descriptif",
+    description: "Générer du code à l'aide d'un texte descriptif.",
     placeholder: "Bouton bascule simple utilisant les hooks React.js.",
     noCodeGeneration: "Aucune Code Generation commencée",
     generate: "Générer"
   }
 };
 
-const isValidLanguage = (lang: any): lang is Language => {
-  return ['en', 'ar', 'fr'].includes(lang);
-};
-
 const CodePage = () => {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const router = useRouter();
   const { language } = useLanguage();
+
+  // Type guard to ensure language is valid
+  const isValidLanguage = (lang: any): lang is Language => ['en', 'ar', 'fr'].includes(lang);
 
   if (!isValidLanguage(language)) {
     throw new Error(`Unsupported language: ${language}`);
@@ -142,8 +126,6 @@ const CodePage = () => {
         };
         const errorMessage = error.response.data || 'An error occurred.';
         
-        console.log('API Error:', errorMessage);
-         
         setMessages((current) => [
           ...current,
           userMessage,
@@ -161,7 +143,7 @@ const CodePage = () => {
 
   return (
     <div>
-       <HeadingPage
+      <HeadingPage
         title={translations[language].title}
         description={translations[language].description}
         icon={Code}
@@ -183,7 +165,7 @@ const CodePage = () => {
                       <Input
                         className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
                         disabled={isLoading}
-                        placeholder={translations[language as Language].placeholder}
+                        placeholder={translations[language].placeholder}
                         {...field}
                       />
                     </FormControl>
@@ -194,7 +176,7 @@ const CodePage = () => {
                 className="col-span-12 lg:col-span-2 w-full"
                 disabled={isLoading}
               >
-                {translations[language as Language].generate}
+                {translations[language].generate}
               </Button>
             </form>
           </Form>
@@ -207,7 +189,7 @@ const CodePage = () => {
           )}
           {messages.length === 0 && !isLoading && (
             <div>
-              <Empty label={translations[language as Language].noCodeGeneration} />
+              <Empty label={translations[language].noCodeGeneration} />
             </div>
           )}
           <div className="flex flex-col-reverse gap-y-4">
@@ -220,7 +202,6 @@ const CodePage = () => {
                 )}
               >
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                
                 <ReactMarkdown
                   components={{
                     pre: ({ node, ...props }) => (
@@ -252,4 +233,3 @@ const CodePage = () => {
 };
 
 export default CodePage;
-
