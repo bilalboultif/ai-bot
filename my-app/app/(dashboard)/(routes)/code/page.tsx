@@ -26,11 +26,11 @@ type Language = 'en' | 'ar' | 'fr';
 
 type Translations = {
   [key in Language]: {
-    title: string;
-    description: string;
-    placeholder: string;
-    noCodeGeneration: string;
-    generate: string;
+    title: any;
+    description: any;
+    placeholder: any;
+    noCodeGeneration: any;
+    generate: any;
   };
 };
 
