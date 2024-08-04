@@ -24,17 +24,9 @@ import { faCopy } from '@fortawesome/free-solid-svg-icons';
 
 type Language = 'en' | 'ar' | 'fr';
 
-type Translations = {
-  [key in Language]: {
-    title: any;
-    description: any;
-    placeholder: any;
-    noCodeGeneration: any;
-    generate: any;
-  };
-};
 
-const translations: Translations = {
+
+const translations = {
   en: {
     title: "Conversation",
     description: "Engage in a meaningful conversation.",
