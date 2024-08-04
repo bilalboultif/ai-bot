@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const API_KEY = "6c1f4b88-5afa-4612-b590-7b539fc18cb2";
+
+const API_KEY = process.env.NEXT_PUBLIC_RAPIDAPI_KEY;
 
 if (!API_KEY) {
   throw new Error('API_KEY is not defined');
