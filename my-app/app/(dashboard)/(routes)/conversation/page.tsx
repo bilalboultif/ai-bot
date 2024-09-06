@@ -1,6 +1,7 @@
 "use client";
 
 import * as z from "zod";
+import { toast } from "react-hot-toast";
 import HeadingPage from "@/components/Heading";
 import { MessageSquare } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -18,6 +19,8 @@ import UserAvatar from "@/components/user-avatar";
 import BotAvatar from "@/components/bot-avatar";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/contexts/LanguageContext";
+import { useProModal } from "@/hooks/use-pro-modal";
+import { ProModal } from "@/components/ui/pro-modal";
 
 // Define the type for the translations object
 type Language = 'en' | 'ar' | 'fr';
@@ -56,6 +59,7 @@ const translations: Translations = {
 };
 
 const ConversationPage = () => {
+  const proModal = useProModal()
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const router = useRouter();
   const { language } = useLanguage(); // Use the language context
@@ -112,7 +116,12 @@ const ConversationPage = () => {
       ]);
       form.reset();
     } catch (error: any) {
-      console.log(error);
+    
+      if (error?.response?.status === 403) {
+         proModal.onOpen()
+      } else {
+        toast.error("Somethign went wrong")
+      }
     } finally {
       router.refresh();
     }
@@ -185,6 +194,7 @@ const ConversationPage = () => {
           </div>
         </div>
       </div>
+      <ProModal/>
     </div>
   );
 };

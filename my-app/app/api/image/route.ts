@@ -1,21 +1,13 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-
-const API_KEY = process.env.NEXT_PUBLIC_RAPIDAPI_KEY;
-
-if (!API_KEY) {
-  throw new Error('API_KEY is not defined');
-}
-
-const genAI = new GoogleGenerativeAI(API_KEY);
+import { checkSubscription } from '@/lib/subscription';
+import { increaseApiLimit, checkApiLimit } from '@/lib/api-limit';
 
 export async function POST(req: Request) {
   try {
     const { userId } = auth();
     const body = await req.json();
-    const {prompt, amount =1, resolution = "512x512"} = body
+    const { prompt, amount = 1, resolution = '512x512' } = body;
 
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 });
@@ -30,25 +22,38 @@ export async function POST(req: Request) {
       return new NextResponse('resolution is required', { status: 400 });
     }
 
-    const response = await fetch('https://api.deepai.org/api/text2img', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-          'api-key': '6c1f4b88-5afa-4612-b590-7b539fc18cb2'
-      },
-      body: JSON.stringify({
-          text: "YOUR_TEXT_URL",
-      })
-  });
-  
-  const data = await response.json();
-  console.log(data);
-    
- 
+    // Check subscription and API limit
+    const freeTrial = await checkApiLimit();
+    const isPro = await checkSubscription();
 
-    
+    if (!freeTrial && !isPro) {
+      return new NextResponse('Free trial has expired', { status: 403 });
+    }
+
+    // Construct the URL with the provided parameters
+    const [width, height] = resolution.split('x').map(Number);
+    const encodedPrompt = encodeURIComponent(prompt);
+    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?model=flux&width=${width || 1024}&height=${height || 1024}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      return new NextResponse('Image generation failed', { status: response.status });
+    }
+
+    // Directly return the image URL from the Pollinations API
+    const imageUrl = response.url; // Assuming the response URL is directly usable
+
+    if (!isPro) {
+      await increaseApiLimit();
+    }
+
+    return NextResponse.json({ imageUrl });
+
   } catch (error) {
-    console.error('[CONVERSATION_ERROR]', error);
+    console.error('[IMAGE_GENERATION_ERROR]', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

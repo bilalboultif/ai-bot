@@ -16,6 +16,9 @@ import Empty from "@/components/empty";
 import Loader from "@/components/loader";
 
 import { useLanguage } from "@/components/contexts/LanguageContext";
+import { ProModal } from "@/components/ui/pro-modal";
+import { useProModal } from "@/hooks/use-pro-modal";
+import toast from "react-hot-toast";
 
 // Define the type for the translations object
 type Language = 'en' | 'ar' | 'fr';
@@ -54,6 +57,7 @@ const translations: Translations = {
 };
 
 const VideoPage = () => {
+  const proModal = useProModal()
   const [video, setVideo] = useState<string | undefined>(undefined);
   const router = useRouter();
   const { language } = useLanguage();
@@ -79,7 +83,12 @@ const VideoPage = () => {
       }
       form.reset();
     } catch (error) {
-      console.error('Error during submission:', error);
+      if (error?.response?.status === 403) {
+        proModal.onOpen()
+        // Or use another method to display the error message in the UI
+      }else {
+        toast.error("Somethign went wrong")
+      }
     } finally {
       router.refresh();
     }
@@ -148,6 +157,7 @@ const VideoPage = () => {
           )}
         </div>
       </div>
+      <ProModal/>
     </div>
   );
 };

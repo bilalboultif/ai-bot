@@ -9,6 +9,9 @@ import {
   UserButton
 } from '@clerk/nextjs'
 import { LanguageProvider } from '../components/contexts/LanguageContext';
+import { ModalProvider } from "@/components/ui/modal-provider";
+import { ToasterProvider } from "@/components/toaster-provider";
+import { CrispProvider } from "@/components/ui/crisp-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +29,10 @@ export default function RootLayout({
     <ClerkProvider>
     <LanguageProvider>
       <html lang="en">
+        <CrispProvider/>
         <body className={inter.className}>
+          <ModalProvider/>
+          <ToasterProvider/>
           {children}
         </body>
       </html>

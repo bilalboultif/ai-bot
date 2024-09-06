@@ -22,7 +22,9 @@ import ReactMarkdown from "react-markdown"
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
-
+import { useProModal } from "@/hooks/use-pro-modal";
+import { ProModal } from "@/components/ui/pro-modal";
+import toast from "react-hot-toast";
 
 // Define the type for the translations object
 type Language = 'en' | 'ar' | 'fr';
@@ -83,6 +85,7 @@ const translations: Translations = {
 };
 
 const CodePage = () => {
+  const proModal = useProModal()
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const router = useRouter();
   const { language } = useLanguage(); // Use the language context
@@ -120,28 +123,11 @@ const CodePage = () => {
       ]);
       form.reset();
     } catch (error: any) {
-      // Handle API errors
-      if (error.response && error.response.data) {
-        // Extract and show the error message from the API response
-        const userMessage = {
-          role: "user",
-          content: values.prompt,
-        };
-        const errorMessage = error.response.data || 'An error occurred.';
-        
-        console.log('API Error:', errorMessage);
-         
-        setMessages((current) => [
-          ...current,
-          userMessage,
-          { role: "bot", content: errorMessage }
-        ]);
-        form.reset();
+      if (error?.response?.status === 403) {
+        proModal.onOpen()
         // Or use another method to display the error message in the UI
       } else {
-        // Handle unexpected errors
-        console.log('Unexpected Error:', error.message);
-        alert('An unexpected error occurred.');
+        toast.error("Somethign went wrong")
       }
     } finally {
       router.refresh();
@@ -238,6 +224,7 @@ const CodePage = () => {
           </div>
         </div>
       </div>
+      <ProModal/>
     </div>
   );
 };

@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { FaGlobe } from "react-icons/fa";
 import { useState } from "react";
 import { useLanguage } from "@/components/contexts/LanguageContext";  // Import the hook
+import { FreeCounter } from "./FreeCounter";
 
 // Load Montserrat font
 const montserrat = Montserrat({
@@ -49,7 +50,15 @@ const translations: Translations = {
     fr: { askMaria: "PQ à Maria", dashboard: "Tableau de bord", conversation: "Conversation", imageGeneration: "Génération d'images", videoGeneration: "Génération vidéo", musicGeneration: "Génération de musique", codeGeneration: "Génération de code", settings: "Paramètres" }
 };
 
-const Sidebar = () => {
+interface SidebarProps {
+    apiLimitCount: number;
+    isPro: boolean
+}
+
+const Sidebar = ({
+    apiLimitCount = 0,
+    isPro = false
+}: SidebarProps) => {
     const { language, setLanguage } = useLanguage(); // Use the language context
     const [showDropdown, setShowDropdown] = useState(false);
     const pathName = usePathname();
@@ -106,6 +115,10 @@ const Sidebar = () => {
                     )}
                 </div>
             </div>
+            <FreeCounter
+            apiLimitCount={apiLimitCount}
+            isPro={isPro}
+            />
         </div>
     );
 };

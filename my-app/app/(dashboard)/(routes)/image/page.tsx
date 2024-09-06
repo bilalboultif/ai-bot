@@ -18,6 +18,9 @@ import { useLanguage } from "@/components/contexts/LanguageContext";
 import './style.css'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CardFooter } from "@/components/ui/card";
+import { ProModal } from "@/components/ui/pro-modal";
+import { useProModal } from "@/hooks/use-pro-modal";
+import toast from "react-hot-toast";
 
 // Define the type for the translations object
 type Language = 'en' | 'ar' | 'fr';
@@ -99,6 +102,7 @@ const translations: Translations = {
 };
 
 const ImagePage = () => {
+  const proModal = useProModal()
   const [images, setImages] = useState<string[]>([]);
   const [description, setDescription] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
@@ -146,40 +150,46 @@ const ImagePage = () => {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log('Form submitted with values:', values);
+  
     try {
-      setImages([]);
-      setDescription(null);
-
-      const options = {
-        method: 'POST',
-        url: 'https://text-to-image13.p.rapidapi.com/',
-        headers: {
-          'x-rapidapi-key': process.env.NEXT_PUBLIC_RAPIDAPI_KEY,
-          'x-rapidapi-host': 'text-to-image13.p.rapidapi.com',
-          'Content-Type': 'application/json',
-          'Accept': 'image/png'
-        },
-        responseType: 'arraybuffer',
-        data: {
-          prompt: values.prompt,
-          resolution: values.resolution // Send the resolution
+      // Send the prompt and resolution to your API endpoint
+      const response = await axios.post('/api/image', {
+        prompt: values.prompt,
+        resolution: values.resolution,
+      });
+  
+      if (response.status === 200) {
+        // Assuming response.data contains the URL
+        const { imageUrl } = response.data;
+  
+        if (imageUrl) {
+          // Update state with the new image URL
+          setImages([imageUrl]);
+          form.reset();
+        } else {
+          console.error('No image URL returned from API.');
         }
-      };
-
-      const response = await axios.request(options);
-
-      // Convert binary data to a Base64-encoded string
-      const base64Image = Buffer.from(response.data, 'binary').toString('base64');
-      const imageUrl = `data:image/png;base64,${base64Image}`;
-
-      setImages([imageUrl]);
-      form.reset();
+      } else {
+        console.error('Image generation failed:', response.statusText);
+        if (response.status === 403) {
+          proModal.onOpen();
+        } else {
+          alert('Failed to generate image: ' + response.statusText);
+        }
+      }
     } catch (error: any) {
-      console.error('Error generating image:', error);
+      if (error?.response?.status === 403) {
+        proModal.onOpen();
+      } else {
+        toast.error("Somethign went wrong")
+      
+      }
     } finally {
-      router.refresh();
+      router.refresh(); // Refresh or update as needed
     }
   };
+  
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -214,7 +224,10 @@ const ImagePage = () => {
         setImages([result.img]);
       }
     } catch (error) {
-      console.error('Error uploading image:', error);
+      if (error?.response?.status === 403) {
+        proModal.onOpen()
+        // Or use another method to display the error message in the UI
+      }
     }
   };
 
@@ -380,6 +393,7 @@ const ImagePage = () => {
           )}
         </div>
       </div>
+      <ProModal/>
     </div>
   );
 };

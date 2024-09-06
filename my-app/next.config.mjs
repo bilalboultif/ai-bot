@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-
+const nextConfig = {
+    images: {
+      domains: ['image.pollinations.ai'], // Add your image domain here
+    },
+  }
 export default nextConfig;

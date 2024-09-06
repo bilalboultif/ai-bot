@@ -1,21 +1,14 @@
-import { Button } from "@/components/ui/button";
-import { SignIn } from "@clerk/nextjs";
-import Link from "next/link"
+import { LandingContent } from "@/components/landing-content";
+import LandingHero from "@/components/landing-hero";
+import { LandingNavbar } from "@/components/ui/landing-navbar";
+
 
 export default function LandingPage() {
     return ( 
-        <div>
-  <p className="text-6xl text-green-500">Landing (Unprotected) </p>
-   <Link href="sign-in">
-     <Button>
-       Login
-     </Button>
-  </Link>
-  <Link href="sign-up">
-     <Button>
-       Register
-     </Button>
-  </Link>
+        <div className="h-full">
+      <LandingNavbar/>
+      <LandingHero/>
+      <LandingContent/>
   </div>
      );
 }
